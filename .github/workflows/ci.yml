@@ -3,10 +3,9 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
-  release:
-    types: [ published ]
 
 jobs:
   build:
@@ -57,18 +56,38 @@ jobs:
         retention-days: 30
 
     - name: Create release archive
-      if: github.event_name == 'release'
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         cd build
         zip -r ../smon-macos-arm64.zip smon
 
-    - name: Upload release assets
-      if: github.event_name == 'release'
+    - name: Create Release
+      id: create_release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## Changes
+
+          See [changelog](https://github.com/barturba/smon/compare/${{ github.event.repository.default_branch }}...${{ github.ref }}) for details.
+
+          ## Downloads
+
+          - **smon-macos-arm64.zip**: Compiled binary for macOS Apple Silicon (ARM64)
+        draft: false
+        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+
+    - name: Upload Release Asset
+      if: startsWith(github.ref, 'refs/tags/')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ github.event.release.upload_url }}
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./smon-macos-arm64.zip
         asset_name: smon-macos-arm64.zip
         asset_content_type: application/zip

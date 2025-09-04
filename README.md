@@ -30,6 +30,20 @@ make
 ./build/smon
 ```
 
+## Download
+
+Get the latest release from [GitHub Releases](https://github.com/barturba/smon/releases):
+
+- **smon-macos-arm64.zip**: Pre-compiled binary for macOS Apple Silicon
+
+```bash
+# Download and extract
+curl -L https://github.com/barturba/smon/releases/latest/download/smon-macos-arm64.zip -o smon.zip
+unzip smon.zip
+chmod +x smon
+./smon
+```
+
 ## License
 
 MIT
