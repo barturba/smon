@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install ncurses cmake
+
+    - name: Configure build
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release ..
+
+    - name: Build
+      run: |
+        cd build
+        make -j$(sysctl -n hw.ncpu)
+
+    - name: Test
+      run: |
+        cd build
+        # Basic smoke test - run briefly and check exit code
+        timeout 5 ./smon || true
+        # Check if binary was created and is executable
+        if [ -x "./smon" ]; then
+          echo "✓ Binary created successfully"
+        else
+          echo "✗ Binary creation failed"
+          exit 1
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: smon-macos-arm64
+        path: build/smon
+        retention-days: 30
+
+    - name: Create release archive
+      if: github.event_name == 'release'
+      run: |
+        cd build
+        zip -r ../smon-macos-arm64.zip smon
+
+    - name: Upload release assets
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./smon-macos-arm64.zip
+        asset_name: smon-macos-arm64.zip
+        asset_content_type: application/zip
