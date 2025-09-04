@@ -1,10 +1,10 @@
 # smon
 
-Minimalist system monitor for macOS Apple Silicon (ARM64). Real-time CPU, memory, network, and process monitoring with ncurses UI.
+System monitor for macOS Apple Silicon (ARM64). CPU, memory, network, and process monitoring with ncurses.
 
 ## Features
 
-- Live CPU usage (total + per-core)
+- CPU usage (total + per-core)
 - Memory and swap usage
 - Network throughput
 - Top processes by CPU
@@ -14,17 +14,18 @@ Minimalist system monitor for macOS Apple Silicon (ARM64). Real-time CPU, memory
 ## Requirements
 
 - macOS 11.0+ on Apple Silicon
-- ncurses (`brew install ncurses`)
+- ncurses
 
-## Build
+## Install
 
 ```bash
+brew install ncurses
 git clone https://github.com/barturba/smon.git
 cd smon
 make
 ```
 
-## Usage
+## Run
 
 ```bash
 ./build/smon
@@ -32,15 +33,11 @@ make
 
 ## Download
 
-Get the latest release from [GitHub Releases](https://github.com/barturba/smon/releases):
-
-- **smon-macos-arm64.zip**: Pre-compiled binary for macOS Apple Silicon
+Pre-built binary available at [Releases](https://github.com/barturba/smon/releases).
 
 ```bash
-# Download and extract
 curl -L https://github.com/barturba/smon/releases/latest/download/smon-macos-arm64.zip -o smon.zip
-unzip smon.zip
-chmod +x smon
+unzip smon.zip && chmod +x smon
 ./smon
 ```
 
