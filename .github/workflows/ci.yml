@@ -19,7 +19,11 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        brew install ncurses cmake
+        brew install ncurses
+        # Check if cmake is already installed, if not install it
+        if ! command -v cmake &> /dev/null; then
+          brew install cmake
+        fi
 
     - name: Configure build
       run: |
